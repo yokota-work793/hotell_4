@@ -17,6 +17,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.samuraitravel.entity.House;
@@ -123,6 +124,24 @@ public class ReservationController {
 		model.addAttribute("sessionId", sessionId);
 		
 		return "reservations/confirm";
+	}
+	
+	@PostMapping("/reservations/{id}/cancel")
+	public String cancel(
+	        @PathVariable(name = "id") Integer id,
+	        @AuthenticationPrincipal UserDetailsImpl userDetailsImpl,
+	        RedirectAttributes redirectAttributes) {
+
+	    Reservation reservation = reservationRepository
+	            .findByIdAndUserId(id, userDetailsImpl.getUser().getId())
+	            .orElseThrow();
+
+	    reservation.setCancelled(true);
+	    reservationRepository.save(reservation);
+
+	    redirectAttributes.addFlashAttribute("successMessage", "予約をキャンセルしました。");
+
+	    return "redirect:/reservations";
 	}
 	
 	/*

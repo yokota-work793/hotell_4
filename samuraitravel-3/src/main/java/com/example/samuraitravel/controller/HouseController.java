@@ -34,41 +34,52 @@ public class HouseController {
 			Model model) {
 		Page<House> housePage;
 
-		if (order != null && order.equals("priceAsc")) {
-			housePage = houseRepository.findByNameLikeOrAddressLikeOrderByPriceAsc("%" + keyword + "%", "%" + keyword + "%", pageable);
+		if (keyword != null && !keyword.isEmpty()) {
+			if (order != null && order.equals("priceAsc")) {
+				housePage = houseRepository.findByNameLikeOrAddressLikeOrderByPriceAsc("%" + keyword + "%",
+						"%" + keyword + "%", pageable);
+			} else {
+				housePage = houseRepository.findByNameLikeOrAddressLikeOrderByCreatedAtDesc("%" + keyword + "%",
+						"%" + keyword + "%", pageable);
+			}
+		} else if (area != null && !area.isEmpty()) {
+
+			if (order != null && order.equals("priceAsc")) {
+				housePage = houseRepository.findByAddressLikeOrderByPriceAsc("%" + area + "%", pageable);
+			} else {
+				housePage = houseRepository.findByAddressLikeOrderByCreatedAtDesc("%" + area + "%", pageable);
+			}
+		} else if (price != null) {
+
+			if (order != null && order.equals("priceAsc")) {
+				housePage = houseRepository.findByPriceLessThanEqualOrderByPriceAsc(price, pageable);
+			} else {
+				housePage = houseRepository.findByPriceLessThanEqualOrderByCreatedAtDesc(price, pageable);
+			}
 		} else {
-			housePage = houseRepository.findByNameLikeOrAddressLikeOrderByCreatedAtDesc("%" + keyword + "%", "%" + keyword + "%", pageable);
-		} if (order != null && order.equals("priceAsc")) {
-			housePage = houseRepository.findByAddressLikeOrderByPriceAsc("%" + area + "%", pageable);
-		} else {
-			housePage = houseRepository.findByAddressLikeOrderByCreatedAtDesc("%" + area + "%", pageable);
-		} if (order != null && order.equals("priceAsc")) {
-			housePage = houseRepository.findByPriceLessThanEqualOrderByCreatedAtDesc(price, pageable);
-		} else {
-			housePage = houseRepository.findByPriceLessThanEqualOrderByCreatedAtDesc(price, pageable);
-		} if (order != null && order.equals("priceAsc")) {
-			housePage = houseRepository.findAllByOrderByPriceAsc(pageable);
-		} else {
-			housePage = houseRepository.findAllByOrderByCreatedAtDesc(pageable);
+			if (order != null && order.equals("priceAsc")) {
+				housePage = houseRepository.findAllByOrderByPriceAsc(pageable);
+			} else {
+				housePage = houseRepository.findAllByOrderByCreatedAtDesc(pageable);
+			}
 		}
-	
-	
-	model.addAttribute("housePage", housePage);
-	model.addAttribute("keyword", keyword);
-	model.addAttribute("area", area);
-	model.addAttribute("price", price);
-	model.addAttribute("order", order);
-	
+
+		model.addAttribute("housePage", housePage);
+		model.addAttribute("keyword", keyword);
+		model.addAttribute("area", area);
+		model.addAttribute("price", price);
+		model.addAttribute("order", order);
+
 		return "houses/index";
 	}
-	
+
 	@GetMapping("/{id}")
 	public String show(@PathVariable(name = "id") Integer id, Model model) {
 		House house = houseRepository.getReferenceById(id);
-		
+
 		model.addAttribute("house", house);
 		model.addAttribute("reservationInputForm", new ReservationInputForm());
-		
+
 		return "houses/show";
 	}
 
